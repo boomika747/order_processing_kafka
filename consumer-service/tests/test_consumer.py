@@ -74,3 +74,14 @@ def test_process_order_invalid_quantity():
     
     with pytest.raises(ValueError, match="Invalid quantity"):
         process_order(order_data)
+
+def test_process_order_empty_items():
+    order_data = {
+        "order_id": "77777777-7777-7777-7777-777777777777",
+        "customer_id": "88888888-8888-8888-8888-888888888888",
+        "items": [],
+        "total_amount": 25000
+    }
+    
+    with pytest.raises(ValueError, match="Order must contain at least one item"):
+        process_order(order_data)

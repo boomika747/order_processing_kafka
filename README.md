@@ -76,6 +76,15 @@ python -m pytest tests/
 python -m pytest tests/
 ```
 
+### End-to-End Integration Test
+
+You can also run an E2E test from the root directory that validates Kafka event publishing and consumption over the API bounds. Ensure `docker-compose up -d` is running first:
+
+```bash
+pip install requests pytest
+pytest tests/test_e2e.py
+```
+
 ---
 
 ## Consumer Behavior

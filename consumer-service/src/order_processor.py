@@ -5,6 +5,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 def process_order(order):
+    if not order.get("items"):
+        raise ValueError("Order must contain at least one item")
+        
     if any(i["quantity"] <= 0 for i in order["items"]):
         raise ValueError("Invalid quantity")
 
