@@ -48,10 +48,33 @@ This starts:
 
 ---
 
-## Create an Order (Kafka Event)
+## Create an Order (via API)
 
-docker exec order-processing-kafka-kafka-1 \
-bash -c 'echo "{\"order_id\":\"77777777-7777-7777-7777-777777777777\",\"customer_id\":\"88888888-8888-8888-8888-888888888888\",\"items\":[{\"product_id\":\"phone\",\"quantity\":1}],\"total_amount\":25000}" | kafka-console-producer --bootstrap-server kafka:9092 --topic order_created'
+You can create an order by hitting the producer's REST API:
+
+```bash
+curl -X POST http://localhost:8080/api/orders \
+-H "Content-Type: application/json" \
+-d '{"customer_id": "88888888-8888-8888-8888-888888888888", "items": [{"product_id": "phone", "quantity": 1}], "total_amount": 25000}'
+```
+
+## Get Order Status (via API)
+
+```bash
+curl http://localhost:8080/api/orders/{order_id}
+```
+
+## Run Tests locally
+
+To test the producer and consumer, navigate into their directories and run `pytest`:
+
+```bash
+# In producer-service
+python -m pytest tests/
+
+# In consumer-service
+python -m pytest tests/
+```
 
 ---
 

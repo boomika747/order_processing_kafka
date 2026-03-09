@@ -21,33 +21,45 @@ producer = KafkaProducer(
     value_serializer=lambda v: json.dumps(v).encode("utf-8")
 )
 
-for msg in consumer:
-    if msg.value is None:
-        continue   # ignore malformed messages
+import logging
 
-    order = msg.value
-    print("Consumed order:", order["order_id"], flush=True)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-    try:
-        result = process_order(order)
+def start_consumer():
+    logger.info("Starting order consumer...")
+    for msg in consumer:
+        if msg.value is None:
+            continue   # ignore malformed messages
 
-        if result != "duplicate":
+        order = msg.value
+        logger.info(f"Consumed order: {order.get('order_id')}")
+
+        try:
+            result = process_order(order)
+
+            if result != "duplicate":
+                producer.send(
+                    "order_processed",
+                    {
+                        "order_id": order["order_id"],
+                        "customer_id": order["customer_id"],
+                        "status": "processed",
+                    },
+                )
+                logger.info(f"Published order_processed for order: {order.get('order_id')}")
+            else:
+                logger.warning(f"Duplicate order ignored: {order.get('order_id')}")
+
+        except Exception as e:
+            logger.error(f"Error processing order {order.get('order_id')}: {e}")
             producer.send(
-                "order_processed",
+                "order_failed",
                 {
-                    "order_id": order["order_id"],
-                    "customer_id": order["customer_id"],
-                    "status": "processed",
+                    "order_id": order.get("order_id"),
+                    "customer_id": order.get("customer_id"),
+                    "error_message": "Validation or processing failed",
+                    "status": "failed",
                 },
             )
 
-    except Exception as e:
-        producer.send(
-            "order_failed",
-            {
-                "order_id": order.get("order_id"),
-                "customer_id": order.get("customer_id"),
-                "error_message": str(e),
-                "status": "failed",
-            },
-        )

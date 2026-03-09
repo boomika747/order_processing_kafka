@@ -2,3 +2,5 @@ fastapi
 uvicorn
 kafka-python
 pytest
+psycopg2-binary
+httpx

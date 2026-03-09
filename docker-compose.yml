@@ -61,8 +61,11 @@ services:
       - "8080:8080"
     environment:
       KAFKA_BROKER_URL: kafka:9092
+      DATABASE_URL: postgresql://user:password@db:5432/order_db
     depends_on:
       kafka:
+        condition: service_healthy
+      db:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
@@ -80,3 +83,8 @@ services:
         condition: service_healthy
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import psycopg2, os; psycopg2.connect(os.getenv(\"DATABASE_URL\")).close()' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
