@@ -1,6 +1,6 @@
 from kafka import KafkaConsumer, KafkaProducer
 import json, os
-from order_processor import process_order
+from src.order_processor import process_order
 
 def safe_json_deserializer(m):
     try:

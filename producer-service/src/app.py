@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from uuid import uuid4
-from kafka_producer import publish_order
-from db import get_db_connection
+from src.kafka_producer import publish_order
+from src.db import get_db_connection
 import psycopg2
 
 
